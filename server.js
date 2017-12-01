@@ -1,28 +1,29 @@
 const express = require('express');
 const bodyParser = require('body-parser');
+const mongoose = require('mongoose');
 const app = express();
 
+// Use body parser to parse JSON objects
 app.use(bodyParser.json());
 
-let tasks = [
-    { key: 1, job: 'Do the washing', dateTime: "12/03/2017, 2:45:00 PM", completed: false },
-    { key: 2, job: 'Walk the dog', dateTime: "11/29/2017, 6:30:00 AM", completed: true }
-]
+// Access the Task model
+
+let Task = require('./models/Task');
 
 app.get('/api/tasks', (req, res) => {
     console.log('Request received!');
-    res.send(tasks);
+    Task.find()
+        .then((tasks) => res.send(tasks));
 });
 
-let currentKey = 2;
-const genKey = () => ++currentKey;
 
 app.post('/api/tasks', (req, res) => {
-    console.log('Post Request successful!');
+    console.log('Post request received');
     let { key, job } = req.body;
     let dateTime = new Date();
-    tasks.unshift({ key: genKey(), job: job, dateTime: dateTime, completed: false });
-    res.send(tasks[0]);
+    Task.create({ job: job, dateTime: dateTime, completed: false })
+        .then((task) => res.send(task));
+    console.log('New Task created');
 });
 
 app.listen(3001, () => console.log('Listening on port 3001!'));
